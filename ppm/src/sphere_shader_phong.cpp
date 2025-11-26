@@ -8,7 +8,7 @@ struct vec3 {
 
     vec3 operator+(const vec3& v) const { return {x + v.x, y + v.y, z + v.z}; }
     vec3 operator-(const vec3& v) const { return {x - v.x, y - v.y, z - v.z}; }
-    vec3 operator*(double t) const { return {x * t, y * t, z * t}; }
+    vec3 operator*(const double t) const { return {x * t, y * t, z * t}; }
 
     vec3 normalize() const {
         double len = sqrt(x * x + y * y + z * z);
@@ -60,17 +60,56 @@ vec3 lambert_shader(const hit& record, const vec3& light_pos, const vec3& obj_co
     return obj_color * intensity;
 }
 
-vec3 half_lambert_shader(const hit& record, const vec3& light_pos, const vec3& obj_color) {
-    // Half Lambert Shader
+// Phong : Light = Ambient + Diffuse + Specular
+vec3 phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
+                  const double shininess) {
     vec3 light_dir = (light_pos - record.position).normalize();
-    double intensity = record.normal.dot(light_dir) * 0.5 + 0.5;
-    return obj_color * intensity;
+    vec3 camera_dir = (camera_pos - record.position).normalize();
+    vec3 reflect_dir = record.normal * 2.0 * record.normal.dot(light_dir) - light_dir;
+
+    // Ambient
+    vec3 ambient = obj_color * 0.05;
+
+    // Diffuse
+    double diff_val = std::max(0.0, record.normal.dot(light_dir));
+
+    // Specular
+    double spec_angle = std::max(0.0, camera_dir.dot(reflect_dir));
+    double spec_val = std::pow(spec_angle, shininess);
+
+    vec3 diffuse = obj_color * diff_val;
+    vec3 specular = vec3{255.0, 255.0, 255.0} * spec_val * (diff_val > 0.0 ? 1.0 : 0.0);
+
+    return ambient + diffuse + specular;
+}
+
+// Blinn Phong
+vec3 blinn_phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
+                        const double shininess) {
+    vec3 light_dir = (light_pos - record.position).normalize();
+    vec3 camera_dir = (camera_pos - record.position).normalize();
+
+    // Ambient
+    vec3 ambient = obj_color * 0.05;
+
+    // Diffuse
+    double diff_val = std::max(0.0, record.normal.dot(light_dir));
+
+    // Specular
+    vec3 half = (light_dir + camera_dir).normalize();
+    double spec_angle = std::max(0.0, half.dot(record.normal));
+    double spec_val = std::pow(spec_angle, shininess * 2.0);
+
+    vec3 diffuse = obj_color * diff_val;
+    vec3 specular = vec3{255.0, 255.0, 255.0} * spec_val * (diff_val > 0.0 ? 1.0 : 0.0);
+
+    return ambient + diffuse + specular;
 }
 
 int main() {
     const int width = 800;
     const int height = 600;
-    const char* file_path = "ppm/bin/sphere_shader1.ppm";
+    const char* file_path = "ppm/bin/sphere_shader_blinn_phong1.ppm";
 
     std::ofstream ofs(file_path, std::ios::binary);
     ofs << "P6\n" << width << " " << height << "\n255\n";
@@ -88,6 +127,7 @@ int main() {
 
     // Light Definition
     vec3 light_pos = {2.0, 2.0, 1.0};
+    double shininess = 32;
 
     // Screen Scanning Loop
     for (int y = height - 1; y > -1; y--) {
@@ -101,8 +141,14 @@ int main() {
 
             if (hit_sphere(rec, sphere_pos, cam_pos, ray_dir, sphere_radius)) {
                 // vec3 color = debug_normal_shader(rec);
-                vec3 lambert = lambert_shader(rec, light_pos, sphere_color);
-                ofs << (unsigned char)lambert.x << (unsigned char)lambert.y << (unsigned char)lambert.z;
+                vec3 phong = blinn_phong_shader(rec, light_pos, cam_pos, sphere_color, shininess);
+                // Simple Gamma Correction
+                double r = sqrt(phong.x / 255.0) * 255.0;
+                double g = sqrt(phong.y / 255.0) * 255.0;
+                double b = sqrt(phong.z / 255.0) * 255.0;
+
+                ofs << (unsigned char)std::min(255.0, r) << (unsigned char)std::min(255.0, g)
+                    << (unsigned char)std::min(255.0, b);
             } else {
                 vec3 unit_direction = ray_dir.normalize();
                 double t = 0.5 * (unit_direction.y + 1.0);

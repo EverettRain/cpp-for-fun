@@ -3,7 +3,7 @@
 #include <vector>
 
 int main() {
-    const char* output_path = "output_cpp.ppm";
+    const char* output_path = "output_texture.ppm";
     const int width = 16 * 60;
     const int height = 9 * 60;
 
