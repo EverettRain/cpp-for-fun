@@ -7,3 +7,5 @@
 #include <iostream>
 #include "object.h"
 #include "shader.h"
+#include "utils.h"
+#include "component.h"

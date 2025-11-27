@@ -13,6 +13,14 @@ struct vec3 {
         double len = sqrt(x * x + y * y + z * z);
         return {x / len, y / len, z / len};
     }
+    vec3 cross(const vec3& v) const { 
+        return {
+            y * v.z - z * v.y,
+            z * v.x - x * v.z,
+            x * v.y - y * v.x
+        };
+    }
+    vec3 up() const { return { 0.0, 1.0, 0.0 }; }
 
     double dot(const vec3& v) const { return x * v.x + y * v.y + z * v.z; }
     double length() const { return sqrt(x * x + y * y + z * z); }

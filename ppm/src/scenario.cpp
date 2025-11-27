@@ -10,21 +10,21 @@ int main() {
 
     // Scenario Definition
     HittableList world;
-    Sphere sphere({0, 0, -1}, 0.5, {220.0, 220.0, 220.0});
+    vec3 sphere_pos1 = {0, 0, -1};
+    vec3 sphere_pos2 = {1, 0, 1};
+    Sphere sphere1(sphere_pos1, 0.5, {220.0, 220.0, 220.0});
+    Sphere sphere2(sphere_pos2, 0.5, {220.0, 220.0, 220.0});
     Plane ground({0, -2, 0}, {0, 1, 0}, {100.0, 200.0, 100.0});
-    world.add(std::make_shared<Sphere>(sphere));
+    world.add(std::make_shared<Sphere>(sphere1));
+    world.add(std::make_shared<Sphere>(sphere2));
     world.add(std::make_shared<Plane>(ground));
 
     // Camera Definition
-    vec3 lower_left = {-2.0, -1.5, -1.0};
-    vec3 horizontal = {4.0, 0.0, 0.0};
-    vec3 vertical = {0.0, 3.0, 0.0};
-    vec3 cam_pos = {0, 0, 0};
-    ray r;
-    r.origin = cam_pos;
+    vec3 camera_up = { 0.0, 1.0, 0.0 };
+    Camera camera({0.0, 4.0, 4.0}, sphere_pos2, camera_up, 60.0, double(width)/double(height) );
 
     // Light Definition
-    vec3 light_pos = {2.0, 2.0, 1.0};
+    vec3 light_pos = {200.0, 200.0, 100.0};
     double shininess = 32;
 
     for (int y = height - 1; y > -1; y--) {
@@ -32,19 +32,34 @@ int main() {
             double u = (double)x / (width - 1);
             double v = (double)y / (height - 1);
 
-            r.dir = (lower_left + horizontal * u + vertical * v - cam_pos).normalize();
+            ray r = camera.get_ray(u, v);
 
             hit rec;
 
             if (world.is_hit(r, rec, MINIMUM, INFINITY)) {
-                vec3 phong = blinn_phong_shader(rec, light_pos, cam_pos, rec.color, shininess);
-                // Simple Gamma Correction
-                double r = sqrt(phong.x / 255.0) * 255.0;
-                double g = sqrt(phong.y / 255.0) * 255.0;
-                double b = sqrt(phong.z / 255.0) * 255.0;
+                vec3 color;
 
-                ofs << (unsigned char)std::min(255.0, r) << (unsigned char)std::min(255.0, g)
-                    << (unsigned char)std::min(255.0, b);
+                vec3 light_dir = (light_pos - rec.position).normalize();
+
+                ray shadow_ray;
+                shadow_ray.origin = rec.position;
+                shadow_ray.dir = light_dir;
+
+                hit shadow_rec;
+                double light_distance = (light_pos - rec.position).length();
+                bool in_shadow = world.is_hit(shadow_ray, shadow_rec, MINIMUM, light_distance);
+
+                if (in_shadow) {
+                    color = rec.color * 0.02;
+                } else {
+                    color = blinn_phong_shader(rec, light_pos, camera.position(), rec.color, shininess);
+                }
+
+                // Simple Gamma Correction
+                color = gamma_correct(color);
+
+                ofs << (unsigned char)std::min(255.0, color.x) << (unsigned char)std::min(255.0, color.y)
+                    << (unsigned char)std::min(255.0, color.z);
             } else {
                 vec3 unit_direction = r.dir.normalize();
                 double t = 0.5 * (unit_direction.y + 1.0);
