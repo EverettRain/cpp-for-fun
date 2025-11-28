@@ -1,18 +1,18 @@
 #include "ragine.h"
 
-vec3 debug_normal_shader(const hit& record) {
+vec3 debug_normal_shader(const hit_legend& record) {
     // 法线范围是 -1 到 1，颜色范围是 0 到 255 (或者 0 到 1), 映射到 0 ~ 1 之间以便观察
     return (record.normal + vec3{1, 1, 1}) * 0.5 * 255.0;
 }
 
-vec3 lambert_shader(const hit& record, const vec3& light_pos, const vec3& obj_color) {
+vec3 lambert_shader(const hit_legend& record, const vec3& light_pos, const vec3& obj_color) {
     // Lambert Shader
     vec3 light_dir = (light_pos - record.position).normalize();
     double intensity = std::max(0.0, record.normal.dot(light_dir));
     return obj_color * intensity;
 }
 
-vec3 half_lambert_shader(const hit& record, const vec3& light_pos, const vec3& obj_color) {
+vec3 half_lambert_shader(const hit_legend& record, const vec3& light_pos, const vec3& obj_color) {
     // Half Lambert Shader
     vec3 light_dir = (light_pos - record.position).normalize();
     double intensity = record.normal.dot(light_dir) * 0.5 + 0.5;
@@ -20,7 +20,7 @@ vec3 half_lambert_shader(const hit& record, const vec3& light_pos, const vec3& o
 }
 
 // Phong : Light = Ambient + Diffuse + Specular
-vec3 phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
+vec3 phong_shader(const hit_legend& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
                   const double shininess) {
     vec3 light_dir = (light_pos - record.position).normalize();
     vec3 camera_dir = (camera_pos - record.position).normalize();
@@ -43,7 +43,7 @@ vec3 phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_p
 }
 
 // Blinn Phong
-vec3 blinn_phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
+vec3 blinn_phong_shader(const hit_legend& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
                         const double shininess) {
     vec3 light_dir = (light_pos - record.position).normalize();
     vec3 camera_dir = (camera_pos - record.position).normalize();

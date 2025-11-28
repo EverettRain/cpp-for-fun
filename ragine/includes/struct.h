@@ -1,12 +1,16 @@
 #pragma once
 
 #include <cmath>
+#include <memory>
+
+class Material;
 
 struct vec3 {
     double x, y, z;
 
     vec3 operator+(const vec3& v) const { return {x + v.x, y + v.y, z + v.z}; }
     vec3 operator-(const vec3& v) const { return {x - v.x, y - v.y, z - v.z}; }
+    vec3 operator*(const vec3& v) const { return {x * v.x, y * v.y, z * v.z}; }
     vec3 operator*(const double t) const { return {x * t, y * t, z * t}; }
 
     vec3 normalize() const {
@@ -23,13 +27,21 @@ struct vec3 {
     vec3 up() const { return { 0.0, 1.0, 0.0 }; }
 
     double dot(const vec3& v) const { return x * v.x + y * v.y + z * v.z; }
+    double length_squared() const { return x * x + y * y + z * z; }
     double length() const { return sqrt(x * x + y * y + z * z); }
+};
+
+struct hit_legend {
+    vec3 position;
+    vec3 normal;
+    vec3 color;
+    double time;
 };
 
 struct hit {
     vec3 position;
     vec3 normal;
-    vec3 color;
+    Material* material;
     double time;
 };
 

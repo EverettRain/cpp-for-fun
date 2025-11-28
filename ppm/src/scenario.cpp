@@ -9,15 +9,15 @@ int main() {
     ofs << "P6\n" << width << " " << height << "\n255\n";
 
     // Scenario Definition
-    HittableList world;
+    HittableList_legend world;
     vec3 sphere_pos1 = {0, 0, -1};
     vec3 sphere_pos2 = {1, 0, 1};
-    Sphere sphere1(sphere_pos1, 0.5, {220.0, 220.0, 220.0});
-    Sphere sphere2(sphere_pos2, 0.5, {220.0, 220.0, 220.0});
-    Plane ground({0, -2, 0}, {0, 1, 0}, {100.0, 200.0, 100.0});
-    world.add(std::make_shared<Sphere>(sphere1));
-    world.add(std::make_shared<Sphere>(sphere2));
-    world.add(std::make_shared<Plane>(ground));
+    Sphere_legend sphere1(sphere_pos1, 0.5, {220.0, 220.0, 220.0});
+    Sphere_legend sphere2(sphere_pos2, 0.5, {220.0, 220.0, 220.0});
+    Plane_legend ground({0, -2, 0}, {0, 1, 0}, {100.0, 200.0, 100.0});
+    world.add(std::make_shared<Sphere_legend>(sphere1));
+    world.add(std::make_shared<Sphere_legend>(sphere2));
+    world.add(std::make_shared<Plane_legend>(ground));
 
     // Camera Definition
     vec3 camera_up = { 0.0, 1.0, 0.0 };
@@ -34,7 +34,7 @@ int main() {
 
             ray r = camera.get_ray(u, v);
 
-            hit rec;
+            hit_legend rec;
 
             if (world.is_hit(r, rec, MINIMUM, INFINITY)) {
                 vec3 color;
@@ -45,7 +45,7 @@ int main() {
                 shadow_ray.origin = rec.position;
                 shadow_ray.dir = light_dir;
 
-                hit shadow_rec;
+                hit_legend shadow_rec;
                 double light_distance = (light_pos - rec.position).length();
                 bool in_shadow = world.is_hit(shadow_ray, shadow_rec, MINIMUM, light_distance);
 

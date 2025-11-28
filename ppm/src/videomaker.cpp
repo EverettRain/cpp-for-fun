@@ -7,19 +7,19 @@ int main() {
     const int height = 600;
     
     // --- 1. 场景定义 (移到循环外，因为场景本身是不动的) ---
-    HittableList world;
+    HittableList_legend world;
     vec3 sphere_pos1 = {0, 0, -1};
     vec3 sphere_pos2 = {1, 0, 1};
     
     // 创建物体
-    Sphere sphere1(sphere_pos1, 0.5, {220.0, 220.0, 220.0});
-    Sphere sphere2(sphere_pos2, 0.5, {220.0, 220.0, 220.0});
-    Plane ground({0, -2, 0}, {0, 1, 0}, {100.0, 200.0, 100.0});
+    Sphere_legend sphere1(sphere_pos1, 0.5, {220.0, 220.0, 220.0});
+    Sphere_legend sphere2(sphere_pos2, 0.5, {220.0, 220.0, 220.0});
+    Plane_legend ground({0, -2, 0}, {0, 1, 0}, {100.0, 200.0, 100.0});
     
     // 添加到世界
-    world.add(std::make_shared<Sphere>(sphere1));
-    world.add(std::make_shared<Sphere>(sphere2));
-    world.add(std::make_shared<Plane>(ground));
+    world.add(std::make_shared<Sphere_legend>(sphere1));
+    world.add(std::make_shared<Sphere_legend>(sphere2));
+    world.add(std::make_shared<Plane_legend>(ground));
 
     // 光源定义
     vec3 light_pos = {200.0, 200.0, 100.0};
@@ -75,7 +75,7 @@ int main() {
                 double v = (double)y / (height - 1);
 
                 ray r = camera.get_ray(u, v);
-                hit rec;
+                hit_legend rec;
 
                 // 注意：这里使用 MINIMUM (比如 0.001) 防止自遮挡
                 if (world.is_hit(r, rec, MINIMUM, INFINITY)) {
@@ -90,7 +90,7 @@ int main() {
                     shadow_ray.origin = rec.position; 
                     shadow_ray.dir = light_dir;
 
-                    hit shadow_rec;
+                    hit_legend shadow_rec;
                     double light_distance = (light_pos - rec.position).length();
                     
                     // 检查是否在阴影中

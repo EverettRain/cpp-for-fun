@@ -18,12 +18,12 @@ struct vec3 {
     double dot(const vec3& v) const { return x * v.x + y * v.y + z * v.z; }
 };
 
-struct hit {
+struct hit_legend {
     vec3 position;
     vec3 normal;
 };
 
-bool hit_sphere(hit& hit_result, const vec3& center, const vec3& origin, const vec3& dir, const double radius) {
+bool hit_sphere(hit_legend& hit_result, const vec3& center, const vec3& origin, const vec3& dir, const double radius) {
     vec3 co = origin - center;
     double a = dir.dot(dir);
     double b = 2.0 * co.dot(dir);
@@ -48,12 +48,12 @@ bool hit_sphere(hit& hit_result, const vec3& center, const vec3& origin, const v
     return true;
 }
 
-vec3 debug_normal_shader(const hit& record) {
+vec3 debug_normal_shader(const hit_legend& record) {
     // 法线范围是 -1 到 1，颜色范围是 0 到 255 (或者 0 到 1), 映射到 0 ~ 1 之间以便观察
     return (record.normal + vec3{1, 1, 1}) * 0.5 * 255.0;
 }
 
-vec3 lambert_shader(const hit& record, const vec3& light_pos, const vec3& obj_color) {
+vec3 lambert_shader(const hit_legend& record, const vec3& light_pos, const vec3& obj_color) {
     // Lambert Shader
     vec3 light_dir = (light_pos - record.position).normalize();
     double intensity = std::max(0.0, record.normal.dot(light_dir));
@@ -61,7 +61,7 @@ vec3 lambert_shader(const hit& record, const vec3& light_pos, const vec3& obj_co
 }
 
 // Phong : Light = Ambient + Diffuse + Specular
-vec3 phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
+vec3 phong_shader(const hit_legend& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
                   const double shininess) {
     vec3 light_dir = (light_pos - record.position).normalize();
     vec3 camera_dir = (camera_pos - record.position).normalize();
@@ -84,7 +84,7 @@ vec3 phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_p
 }
 
 // Blinn Phong
-vec3 blinn_phong_shader(const hit& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
+vec3 blinn_phong_shader(const hit_legend& record, const vec3& light_pos, const vec3& camera_pos, const vec3& obj_color,
                         const double shininess) {
     vec3 light_dir = (light_pos - record.position).normalize();
     vec3 camera_dir = (camera_pos - record.position).normalize();
@@ -137,7 +137,7 @@ int main() {
 
             vec3 ray_dir = (lower_left + horizontal * u + vertical * v - cam_pos).normalize();
 
-            hit rec;
+            hit_legend rec;
 
             if (hit_sphere(rec, sphere_pos, cam_pos, ray_dir, sphere_radius)) {
                 // vec3 color = debug_normal_shader(rec);
