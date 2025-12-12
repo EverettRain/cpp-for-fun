@@ -81,6 +81,14 @@ public:
         return center;
     }
 
+    static void get_sphere_uv(const vec3& p, vec2& uv) {
+        auto theta = std::acos(-p.y);
+        auto phi = std::atan2(-p.z, p.x) + M_PI;
+
+        uv.x = phi / (2 * M_PI);
+        uv.y = theta / M_PI;
+    }
+
     virtual bool is_hit(const ray& r, hit& record, double t_min, double t_max) const override {
         vec3 co = r.origin - center;
         double a = r.dir.dot(r.dir);
@@ -102,8 +110,10 @@ public:
         record.time = root;
         record.position = r.origin + r.dir * root;
         record.normal = (record.position - center) * (1.0 / radius);
-        record.material = material.get();;
 
+        get_sphere_uv(record.normal, record.uv);
+
+        record.material = material.get();
         return true;
     }
 
@@ -150,6 +160,9 @@ public:
         record.position = r.at(root);
         record.normal = normal;
         record.material = material.get();
+
+        record.uv.x = record.position.x * 0.5;
+        record.uv.y = record.position.z * 0.5;
 
         return true;
     }

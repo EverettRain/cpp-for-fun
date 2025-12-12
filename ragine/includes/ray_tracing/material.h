@@ -8,9 +8,11 @@ public:
 };
 
 class Lambertian : public Material {
-    vec3 albedo;
+    // vec3 albedo;
+    std::shared_ptr<Texture> albedo;
 public:
-    Lambertian(const vec3& color) : albedo(color) {}
+    Lambertian(const vec3& color) : albedo(std::make_shared<SolidColor>(color)) {}
+    Lambertian(std::shared_ptr<Texture> alb) : albedo(alb) {}
     virtual bool scatter(const ray& ray_in, const hit& record, vec3& attenuation, ray& ray_out) const override {
         ray new_ray;
         new_ray.origin = record.position;
@@ -18,7 +20,7 @@ public:
 
         if (new_ray.dir.length() < 1e-8) new_ray.dir = record.normal;
         new_ray.dir = new_ray.dir.normalize();
-        attenuation = albedo;
+        attenuation = albedo->value(record.uv, record.position);
         ray_out = new_ray;
         return true;
     }

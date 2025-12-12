@@ -4,7 +4,8 @@
 HittableList random_world() {
     HittableList world;
 
-    auto ground_material = std::make_shared<Lambertian>(Colors::Gray50);
+    auto checker = std::make_shared<CheckerTexture>(vec3{0.0, 0.0, 0.0}, vec3{0.9, 0.9, 0.9});
+    auto ground_material = std::make_shared<Lambertian>(checker);
     world.add(std::make_shared<Plane>(vec3{0, 0, 0}, vec3{0, 1, 0}, ground_material));
 
     HittableList balls_list;
@@ -46,8 +47,11 @@ HittableList random_world() {
     balls_list.add(std::make_shared<Sphere>(vec3{0, 1, 0}, 1.0, material1));
 
     // 漫反射球
+    auto earth_texture = std::make_shared<ImageTexture>("ppm/res/earth_texture.jpg", vec2{1.0, 1.0}, vec2{0.25, 0.0});
+    auto earth_surface = std::make_shared<Lambertian>(earth_texture);
+
     auto material2 = std::make_shared<Lambertian>(vec3{0.4, 0.2, 0.1});
-    balls_list.add(std::make_shared<Sphere>(vec3{-4, 1, 0}, 1.0, material2));
+    balls_list.add(std::make_shared<Sphere>(vec3{4, 1, 2}, 1.0, earth_surface));
 
     // 金属球
     auto material3 = std::make_shared<Metal>(vec3{0.7, 0.6, 0.5}, 0.0);

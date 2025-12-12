@@ -46,6 +46,39 @@ struct vec3 {
     }
 };
 
+struct vec2 {
+    union {
+        struct {
+            double x, y;
+        };
+        double vec2_data[2];
+    };
+
+    vec2(double x_val = 0.0, double y_val = 0.0) : x(x_val), y(y_val) {}
+
+    vec2 operator+(const vec2& v) const { return {x + v.x, y + v.y}; }
+    vec2 operator-(const vec2& v) const { return {x - v.x, y - v.y}; }
+    vec2 operator*(const vec2& v) const { return {x * v.x, y * v.y}; }
+    vec2 operator*(const double t) const { return {x * t, y * t}; }
+
+    vec2 normalize() const {
+        double len = sqrt(x * x + y * y);
+        return {x / len, y / len};
+    }
+
+    double dot(const vec3& v) const { return x * v.x + y * v.y; }
+    double length_squared() const { return x * x + y * y; }
+    double length() const { return sqrt(x * x + y * y); }
+
+    double operator[](const int index) const {
+        return vec2_data[index];
+    }
+
+    double& operator[](const int index) {
+        return vec2_data[index];
+    }
+};
+
 struct hit_legend {
     vec3 position;
     vec3 normal;
@@ -58,6 +91,8 @@ struct hit {
     vec3 normal;
     Material* material;
     double time;
+
+    vec2 uv;
 };
 
 struct ray {

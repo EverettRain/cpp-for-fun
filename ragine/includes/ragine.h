@@ -23,6 +23,7 @@ Created by Everett Rain 2025-11-27 (MIT License)
 #include "components/utils.h"
 #include "components/component.h"
 #include "components/random.h"
+#include "components/texture.h"
 
 // RAGINE - Legend APIs
 #include "legend/shader.h"
